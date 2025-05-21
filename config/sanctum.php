@@ -15,8 +15,11 @@ return [
     |
     */
 
-'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', 'localhost:5173,localhost:8010')),
-
+	'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', 'localhost:5173,localhost:8010'
+	, 'reseñasa.com'
+	, 'xn--reseasya-g3a.com'
+	, 'api.xn--reseasya-g3a.com'
+	,'api.reseñaya.com')),
     /*
     |--------------------------------------------------------------------------
     | Sanctum Guards

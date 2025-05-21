@@ -6,25 +6,43 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Contact;
 use App\Models\Message;
+use App\Models\Business;
 
 class WhatsappWebhookController extends Controller
 {
     public function handle(Request $request)
     {
-        $from = $request->input('from');  // ej: "+34600111222"
-        $body = strtolower(trim($request->input('body'))); // mensaje que escribió el cliente
+        \Log::info('📩 Webhook recibido', [
+            'payload' => $request->all(),
+            'ip' => $request->ip(),
+        ]);
+
+        $fromRaw = $request->input('data.from'); // Ej: "5492954677479@c.us"
+        $from = '+' . preg_replace('/[^0-9]/', '', explode('@', $fromRaw)[0]); // Limpio: "5492954677479"
+
+        \Log::info('🔍 Buscando contacto con número limpio', ['cleanPhone' => $from]);
+
+        $body = strtolower(trim($request->input('data.body')));
         $instanceId = config('services.ultramsg.instance_id');
         $token = config('services.ultramsg.token');
 
-        // Buscar el último contacto
         $contact = Contact::where('client_phone', $from)->latest()->first();
 
         if (! $contact) {
+            \Log::warning('❌ Contacto no encontrado para número', ['from' => $from]);
             return response()->json(['status' => 'contact not found'], 404);
         }
 
-        if (in_array($body, ['👍', 'si', 'sí', 'perfecto', 'genial'])) {
-            $link = 'https://www.google.com/maps/place/Negocio+De+Prueba'; // personalizá esto
+        $positiveResponses = [
+            '👍', 'si', 'sí', 'perfecto', 'genial', 'bueno', 'ok', 'okey',
+            'Sí', 'Si', 'Perfecto', 'Genial', 'Bueno', 'Ok', 'Okey'
+        ];
+
+        $negativeResponses = ['👎', 'no', 'mal', 'regular', 'No', 'Mal', 'Regular'];
+
+        if (in_array($body, array_map('strtolower', $positiveResponses))) {
+            $business = Business::find($contact->business_id);
+            $link = $business?->location ?? 'https://www.google.com/maps';
 
             Http::post("https://api.ultramsg.com/{$instanceId}/messages/chat", [
                 'token' => $token,
@@ -41,7 +59,7 @@ class WhatsappWebhookController extends Controller
                 'status' => 'sent',
                 'sent_at' => now(),
             ]);
-        } elseif (in_array($body, ['👎', 'no', 'mal', 'regular'])) {
+        } elseif (in_array($body, array_map('strtolower', $negativeResponses))) {
             Http::post("https://api.ultramsg.com/{$instanceId}/messages/chat", [
                 'token' => $token,
                 'to' => $from,
@@ -62,4 +80,3 @@ class WhatsappWebhookController extends Controller
         return response()->json(['status' => 'ok']);
     }
 }
-
