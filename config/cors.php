@@ -6,8 +6,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173'], 
-
+    'allowed_origins' => [
+        'http://localhost:5173',
+        'https://reseñasya.com',
+        'https://xn--reseasya-g3a.com',
+        'https://www.reseñasya.com',
+    ],
     'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],

@@ -56,17 +56,16 @@ class AuthController extends Controller
     }
 
     // Obtener el usuario autenticado
-    public function user(Request $request)
-    {
-        $user = $request->user();
-        $user->load('business'); // ← carga relación si existe
-    
-        return response()->json([
-            'user' => $user,
-            'token' => $request->bearerToken(),
-        ]);
-    }
+   public function user(Request $request)
+{
+    $user = $request->user();
+    $user->load('business');
 
+    return response()->json([
+        'user' => $user,
+        'token' => $request->bearerToken(), // opcional
+    ]);
+}
     // Logout
     public function logout(Request $request)
     {

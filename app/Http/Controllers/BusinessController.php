@@ -49,24 +49,30 @@ class BusinessController extends Controller
     }
 
     // 3️⃣ Asociar negocio a usuario autenticado
-    public function assignToUser(Request $request)
-    {
-        $request->validate([
-            'business_id' => 'required|exists:businesses,id',
-        ]);
-    
-        $user = $request->user();
-        $business = Business::find($request->business_id);
-    
-        if ($business->user_id) {
-            return response()->json(['message' => 'Este negocio ya está asignado.'], 409);
-        }
-    
-        $business->user_id = $user->id;
-        $business->save();
-    
-        return response()->json(['message' => 'Negocio asociado correctamente']);
+   public function assignToUser(Request $request)
+{
+    $request->validate([
+        'business_id' => 'required|exists:businesses,id',
+    ]);
+
+    // Primero se debe obtener el usuario autenticado
+    $user = $request->user();
+
+    if (!$user) {
+        return response()->json(['error' => 'Usuario no autenticado'], 401);
     }
+
+    $business = Business::find($request->business_id);
+
+    if ($business->user_id) {
+        return response()->json(['message' => 'Este negocio ya está asignado.'], 409);
+    }
+
+    $business->user_id = $user->id;
+    $business->save();
+
+    return response()->json(['message' => 'Negocio asociado correctamente']);
+}
     public function store(Request $request)
 {
     $user = auth()->user();
@@ -82,6 +88,7 @@ class BusinessController extends Controller
 
     // Actualizar negocio
     $business = $user->business;
+
     $business->name = $request->businessName;
     $business->email = $request->businessEmail;
     $business->phone = $request->businessPhone;

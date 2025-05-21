@@ -55,5 +55,21 @@ class SubscriptionController extends Controller
 
         return response()->json($subscriptions);
     }
+    public function cancel(Request $request)
+    {
+        $user = $request->user();
+        $subscription = $user->subscription;
+
+        if (!$subscription) {
+            return response()->json(['message' => 'No tienes una suscripción activa.'], 404);
+        }
+
+        $subscription->update([
+            'status' => 'cancelled',
+            'canceled_at' => now(),
+        ]);
+
+        return response()->json(['message' => 'Suscripción cancelada correctamente.']);
+    }
 
 }

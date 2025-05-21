@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Http;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/business-public', [BusinessController::class, 'storePublic']);
-
+Route::post('/whatsapp/webhook', [WhatsappWebhookController::class, 'handle']);
+Route::post('/ultramsg/webhook', [WhatsappWebhookController::class, 'handle']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
@@ -26,10 +27,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/contacts', [ContactController::class, 'index']);
     Route::post('/subscription', [SubscriptionController::class, 'store']);
     Route::get('/subscription', [SubscriptionController::class, 'show']);
+    Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel']);
     Route::get('/payments', [SubscriptionController::class, 'payments']);
     Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
     Route::get('/dashboard/actions', [DashboardController::class, 'getRecentActions']);
     Route::get('/dashboard/stats-extended', [DashboardController::class, 'getExtendedStats']);
     Route::get('/messages', [MessageController::class, 'index']);
-    Route::post('/ultramsg/webhook', [WhatsappWebhookController::class, 'handle']);
 });
