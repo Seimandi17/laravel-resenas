@@ -14,7 +14,6 @@ class BusinessController extends Controller
             'name'        => 'required|string|max:255',
             'email'       => 'required|email|unique:businesses,email',
             'phone'       => 'required|string',
-            'category'    => 'required|string',
             'location'    => 'required|string',
             'description' => 'required|string',
         ]);
@@ -37,7 +36,6 @@ class BusinessController extends Controller
                 'name' => $user->business->name,
                 'email' => $user->business->email,
                 'phone' => $user->business->phone,
-                'category' => $user->business->category,
                 'description' => $user->business->description,
                 // 👇 Agregamos campos del dueño
                 'owner_name' => $user->name,
